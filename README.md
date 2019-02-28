@@ -10,7 +10,7 @@ To use this plugin, add `flutter_kin_ecosystem_sdk` as a [dependency in your pub
 
 ```yaml
 dependencies:
-  flutter_kin_ecosystem_sdk: '^0.1.0'
+  flutter_kin_ecosystem_sdk: '^0.1.1'
 ```
 
 ### Initializing
