@@ -1,0 +1,65 @@
+PODS:
+  - Flutter (1.0.0)
+  - flutter_kin_ecosystem_sdk (0.0.1):
+    - Flutter
+    - KinCoreSDK
+    - KinDevPlatform (= 1.0.6)
+  - KinCoreSDK (0.7.18):
+    - Sodium (= 0.7.0)
+    - StellarKit (= 0.3.14)
+  - KinDevPlatform (1.0.6):
+    - KinMigrationModule (= 0.0.4)
+    - SimpleCoreDataStack (= 0.1.6)
+  - KinMigrationModule (0.0.4):
+    - KinCoreSDK (= 0.7.18)
+    - KinSDK (= 0.8.5)
+    - Sodium (= 0.7.0)
+  - KinSDK (0.8.5):
+    - KinUtil (= 0.0.16)
+    - Sodium (= 0.7.0)
+  - KinUtil (0.0.16)
+  - SimpleCoreDataStack (0.1.6)
+  - Sodium (0.7.0)
+  - StellarErrors (0.2.7)
+  - StellarKit (0.3.14):
+    - KinUtil (= 0.0.16)
+    - StellarErrors (= 0.2.7)
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_kin_ecosystem_sdk (from `.symlinks/plugins/flutter_kin_ecosystem_sdk/ios`)
+
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - KinCoreSDK
+    - KinDevPlatform
+    - KinMigrationModule
+    - KinSDK
+    - KinUtil
+    - SimpleCoreDataStack
+    - Sodium
+    - StellarErrors
+    - StellarKit
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  flutter_kin_ecosystem_sdk:
+    :path: ".symlinks/plugins/flutter_kin_ecosystem_sdk/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  flutter_kin_ecosystem_sdk: 7bbffca4141fcfd839680271eccaaeed90a37705
+  KinCoreSDK: 98808062921d425703e8b8b042bae097b7271948
+  KinDevPlatform: 3517e4f5c0f8a794ff77df2881b6424237146159
+  KinMigrationModule: be22b912959aab352882c9a05d32bac50b557607
+  KinSDK: 6d021909c1011c2c3c9518d1fbe86334a8e9fafb
+  KinUtil: 00442723f29cfa38f2410f9d4dba5a28937ed4ad
+  SimpleCoreDataStack: 80d9c5efd1861d77432477974b3be410a202bd2f
+  Sodium: c5510cc6f5e1b27858e5f260b5cac80d4a3f9379
+  StellarErrors: f9239fad02b05464fbc9845063195a87d28f57d1
+  StellarKit: e9325dee370a10bda1a82ac7488900ddc697ef98
+
+PODFILE CHECKSUM: d231b65d6bea6d24555f84ca7901720538b5791f
+
+COCOAPODS: 1.6.1
