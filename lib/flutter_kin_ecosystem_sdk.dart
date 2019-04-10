@@ -8,10 +8,10 @@ class FlutterKinEcosystemSdk {
   static const _stream = const EventChannel('flutter_kin_ecosystem_sdk_balance');
   static const _streamInfo = const EventChannel('flutter_kin_ecosystem_sdk_info');
 
-  static Future<String> get platformVersion async {
-    final String version =
-        await _methodChannel.invokeMethod('getPlatformVersion');
-    return version;
+  static Future<String> get getPublicAddress async {
+    final String address =
+        await _methodChannel.invokeMethod('getPublicAddress');
+    return address;
   }
 
   static EventChannel get balanceStream {

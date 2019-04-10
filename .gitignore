@@ -5,3 +5,20 @@
 .pub/
 
 build/
+example/android/app/.classpath
+.vscode/launch.json
+android/.classpath
+android/.project
+android/.idea/.name
+android/.idea/gradle.xml
+android/.idea/misc.xml
+android/.idea/modules.xml
+android/.idea/runConfigurations.xml
+android/.idea/vcs.xml
+android/.idea/caches/build_file_checksums.ser
+android/.idea/codeStyles/Project.xml
+android/.settings/org.eclipse.buildship.core.prefs
+example/android/.project
+example/android/.settings/org.eclipse.buildship.core.prefs
+example/android/app/.project
+example/android/app/.settings/org.eclipse.buildship.core.prefs
