@@ -2,6 +2,7 @@ package studio.dipdev.flutter.kinecosystemsdk
 
 import android.app.Activity
 import android.content.Context
+import android.os.Handler
 import com.google.gson.Gson
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -84,6 +85,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                     override fun onResponse(response: Void?) {
                         isKinInit = true
                         sendReport("kinStart", "Kin started")
+                        result.success(true)
                     }
                 }, object : KinMigrationListener {
                     override fun onFinish() {
@@ -102,32 +104,33 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                     }
                 })
 
-                val environment: KinEnvironment = if (isProduction){
-                    Environment.getProduction()
-                }else{
-                    Environment.getPlayground()
-                }
-                Kin.start(context, token, environment, object : KinCallback<Void> {
-                    override fun onFailure(error: KinEcosystemException?) {
-                        isKinInit = false
-                        sendError("kinStart", error)
-                    }
-
-                    override fun onResponse(response: Void?) {
-                        isKinInit = true
-                        sendReport("kinStart", "Kin started")
-                        if (initBalanceObserver) {
-                            try {
-                                Kin.addBalanceObserver(balanceObserver)
-                            } catch (e: Throwable) {
-                                sendError( "Balance Observer doesn't initialized ", e)
-                            }
-                        }
-                    }
-                })
+//                val environment: KinEnvironment = if (isProduction){
+//                    Environment.getProduction()
+//                }else{
+//                    Environment.getPlayground()
+//                }
+//                Kin.start(context, token, environment, object : KinCallback<Void> {
+//                    override fun onFailure(error: KinEcosystemException?) {
+//                        isKinInit = false
+//                        sendError("kinStart", error)
+//                    }
+//
+//                    override fun onResponse(response: Void?) {
+//                        isKinInit = true
+//                        sendReport("kinStart", "Kin started")
+//                        if (initBalanceObserver) {
+//                            try {
+//                                Kin.addBalanceObserver(balanceObserver)
+//                            } catch (e: Throwable) {
+//                                sendError( "Balance Observer doesn't initialized ", e)
+//                            }
+//                        }
+////                        migrationEmulation()
+//                    }
+//                })
             }
             call.method == "launchKinMarket" -> if (ifKinInit()) Kin.launchMarketplace(activity)
-            call.method == "getWallet" -> if (ifKinInit()) result.success(Kin.getPublicAddress())
+            call.method == "getPublicAddress" -> if (ifKinInit()) result.success(Kin.getPublicAddress())
             call.method == "kinEarn" -> {
                 if (!ifKinInit()) return
                 val jwt: String? = call.argument("jwt")
@@ -150,6 +153,29 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
             }
             else -> result.notImplemented()
         }
+    }
+
+    private fun migrationEmulation(){
+        sendReport("kinMigration", "migrationStart")
+        Handler().postDelayed(
+                {
+                    sendReport("kinMigration", "migrationFinish")
+                },
+                10_000
+        )
+        Handler().postDelayed(
+                {
+                    sendReport("kinMigration", "migrationStart")
+                },
+                20_000
+        )
+        Handler().postDelayed(
+                {
+                    val err = Error("kinMigration", "Some migration error")
+                    sendError("-2", "Kin migration failed", err)
+                },
+                30_000
+        )
     }
 
     private fun kinEarn(jwt: String) {

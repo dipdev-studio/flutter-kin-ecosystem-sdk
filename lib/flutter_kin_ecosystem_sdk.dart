@@ -1,29 +1,61 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_kin_ecosystem_sdk/utils.dart';
 
 class FlutterKinEcosystemSdk {
-  static MethodChannel _methodChannel = MethodChannel('flutter_kin_ecosystem_sdk');
+  static MethodChannel _methodChannel =
+      MethodChannel('flutter_kin_ecosystem_sdk');
 
-  static const _stream = const EventChannel('flutter_kin_ecosystem_sdk_balance');
-  static const _streamInfo = const EventChannel('flutter_kin_ecosystem_sdk_info');
+  static const _streamBalance =
+      const EventChannel('flutter_kin_ecosystem_sdk_balance');
+  static const _streamInfo =
+      const EventChannel('flutter_kin_ecosystem_sdk_info');
 
-  static Future<String> get platformVersion async {
-    final String version =
-        await _methodChannel.invokeMethod('getPlatformVersion');
-    return version;
+  static StreamController<Info> _streamInfoController =
+      new StreamController.broadcast();
+
+//  static StreamController<int> _streamBalanceController =
+//      new StreamController.broadcast();
+
+  static initStreams() {
+    _streamInfo.receiveBroadcastStream().listen((data) {
+      Info info = Info.fromJson(json.decode(data));
+      _streamInfoController.add(info);
+    }, onError: (error) {
+      Error err = new Error(
+          error.code, error.message, Info.fromJson(json.decode(error.details)));
+      throw err;
+    });
+
+//    _streamBalance.receiveBroadcastStream().listen((data) {
+//      _streamBalanceController.add(int.parse(data.toString()));
+//    }, onError: (error) {
+//      throw error;
+//    });
+  }
+
+  static Future<String> get getPublicAddress async {
+    final String address =
+        await _methodChannel.invokeMethod('getPublicAddress');
+    return address;
   }
 
   static EventChannel get balanceStream {
-    return _stream;
+    return _streamBalance;
   }
 
-  static EventChannel get infoStream {
-    return _streamInfo;
+//  static StreamController<int> get balanceStream {
+//    return _streamBalanceController;
+//  }
+
+  static StreamController<Info> get infoStream {
+    return _streamInfoController;
   }
 
-  static Future kinStart(
-      String token, String userId, String appId, bool initBalanceObserver, bool isProduction) async {
+  static Future kinStart(String token, String userId, String appId,
+      bool initBalanceObserver, bool isProduction) async {
     final Map<String, dynamic> params = <String, dynamic>{
       'token': token,
       'userId': userId,
@@ -32,6 +64,8 @@ class FlutterKinEcosystemSdk {
       'isProduction': isProduction,
     };
     await _methodChannel.invokeMethod('kinStart', params);
+    initStreams();
+    _streamInfoController.add(Info.params("kinStart", "Kin started", null));
   }
 
   static Future launchKinMarket() async {

@@ -15,7 +15,7 @@ A flutter Kin Ecosystem SDK plugin to use offers features and launch Kin Marketp
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
-  s.dependency 'KinDevPlatform', '1.0.1'
+  s.dependency 'KinDevPlatform', '1.0.6'
   s.dependency 'KinCoreSDK'
   s.static_framework = true
   s.ios.deployment_target = '9.0'
