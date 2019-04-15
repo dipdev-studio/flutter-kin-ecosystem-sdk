@@ -10,7 +10,7 @@ To use this plugin, add `flutter_kin_ecosystem_sdk` as a [dependency in your pub
 
 ```yaml
 dependencies:
-  flutter_kin_ecosystem_sdk: '^0.1.2'
+  flutter_kin_ecosystem_sdk: '^0.2.0'
 ```
 
 ### Initializing
@@ -32,14 +32,17 @@ To receive some changes in plugin you can use such ones:
 
 ``` dart
 // Receive balance scream and get all balance changes
-FlutterKinEcosystemSdk.balanceStream.receiveBroadcastStream().listen((balance) {
-    print(balance);
+FlutterKinEcosystemSdk.infoStream.stream.listen((Info info) {
+    print(info.type + " " + info.message);
+    if (info.amount != null) print(info.amount);
+}, onError: (error) {
+    throw error;
 });
 
-// Receive all info and error messages from plugin
-FlutterKinEcosystemSdk.infoStream.receiveBroadcastStream().listen((jsonStr) {
-    print(jsonStr);
-});
+// Receive balance changes from plugin
+FlutterKinEcosystemSdk.balanceStream.stream.listen((int balance) {
+    print(balance);
+}, onError: (error) {});
 ```
 
 ### Some methods
