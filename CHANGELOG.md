@@ -8,3 +8,10 @@
 ## 0.1.1
 
  - updating Android Kin Devplatform Library to 1.2.2.1
+
+ ## 0.2.0
+
+ - updating iOS Kin Devplatform Library to 1.0.6
+ - add base plugin models Info and Error
+ - returning base models in streams
+ - fixes
