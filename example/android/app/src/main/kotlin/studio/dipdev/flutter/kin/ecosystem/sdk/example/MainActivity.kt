@@ -1,4 +1,4 @@
-package studio.dipdev.flutter_kin_ecosystem_sdk_example
+package studio.dipdev.flutter.kin.ecosystem.sdk.example
 
 import android.os.Bundle
 

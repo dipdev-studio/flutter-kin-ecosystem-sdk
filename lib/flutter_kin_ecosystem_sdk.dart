@@ -16,8 +16,8 @@ class FlutterKinEcosystemSdk {
   static StreamController<Info> _streamInfoController =
       new StreamController.broadcast();
 
-//  static StreamController<int> _streamBalanceController =
-//      new StreamController.broadcast();
+  static StreamController<int> _streamBalanceController =
+      new StreamController.broadcast();
 
   static initStreams() {
     _streamInfo.receiveBroadcastStream().listen((data) {
@@ -29,11 +29,11 @@ class FlutterKinEcosystemSdk {
       throw err;
     });
 
-//    _streamBalance.receiveBroadcastStream().listen((data) {
-//      _streamBalanceController.add(int.parse(data.toString()));
-//    }, onError: (error) {
-//      throw error;
-//    });
+    _streamBalance.receiveBroadcastStream().listen((data) {
+      _streamBalanceController.add(int.parse(data.toString()));
+    }, onError: (error) {
+      throw error;
+    });
   }
 
   static Future<String> get getPublicAddress async {
@@ -42,13 +42,9 @@ class FlutterKinEcosystemSdk {
     return address;
   }
 
-  static EventChannel get balanceStream {
-    return _streamBalance;
+  static StreamController<int> get balanceStream {
+    return _streamBalanceController;
   }
-
-//  static StreamController<int> get balanceStream {
-//    return _streamBalanceController;
-//  }
 
   static StreamController<Info> get infoStream {
     return _streamInfoController;
@@ -56,6 +52,7 @@ class FlutterKinEcosystemSdk {
 
   static Future kinStart(String token, String userId, String appId,
       bool initBalanceObserver, bool isProduction) async {
+    initStreams();
     final Map<String, dynamic> params = <String, dynamic>{
       'token': token,
       'userId': userId,
@@ -64,8 +61,6 @@ class FlutterKinEcosystemSdk {
       'isProduction': isProduction,
     };
     await _methodChannel.invokeMethod('kinStart', params);
-    initStreams();
-    _streamInfoController.add(Info.params("kinStart", "Kin started", null));
   }
 
   static Future launchKinMarket() async {
