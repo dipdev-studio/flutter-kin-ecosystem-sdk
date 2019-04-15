@@ -12,5 +12,5 @@ dependencies:
     sdk: flutter
 flutter:
   plugin:
-    androidPackage: studio.dipdev.flutter.kinecosystemsdk
+    androidPackage: studio.dipdev.flutter.kin.ecosystem.sdk
     pluginClass: FlutterKinEcosystemSdkPlugin
