@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="studio.dipdev.flutter_kin_ecosystem_sdk">
+  package="studio.dipdev.flutter.kin.ecosystem.sdk">
 
   <uses-permission android:name="android.permission.INTERNET" />
   

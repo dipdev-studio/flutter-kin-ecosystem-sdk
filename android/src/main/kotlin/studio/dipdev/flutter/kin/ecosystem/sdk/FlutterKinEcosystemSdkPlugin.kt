@@ -1,8 +1,7 @@
-package studio.dipdev.flutter.kinecosystemsdk
+package studio.dipdev.flutter.kin.ecosystem.sdk
 
 import android.app.Activity
 import android.content.Context
-import android.os.Handler
 import com.google.gson.Gson
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -10,18 +9,14 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
-import kin.devplatform.Environment
-import kin.devplatform.Kin
-import kin.devplatform.KinCallback
-import kin.devplatform.KinEnvironment
-import kin.devplatform.KinMigrationListener
+import kin.devplatform.*
 import kin.devplatform.base.Observer
 import kin.devplatform.data.model.Balance
 import kin.devplatform.data.model.OrderConfirmation
 import kin.devplatform.exception.KinEcosystemException
 
 
-class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var context: Context): MethodCallHandler {
+class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var context: Context) : MethodCallHandler {
     var isKinInit = false
     var balance: Long = 0
 
@@ -29,14 +24,14 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         override fun onChanged(p0: Balance?) {
             if (p0 != null) {
                 balance = p0.amount.longValueExact()
-                balanceCallback?.success(balance)
+                balanceCallback.success(balance)
             }
         }
     }
 
     companion object {
-        var balanceCallback: EventChannel.EventSink? = null
-        var infoCallback: EventChannel.EventSink? = null
+        lateinit var balanceCallback: EventChannel.EventSink
+        lateinit var infoCallback: EventChannel.EventSink
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
@@ -76,7 +71,12 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                 val initBalanceObserver: Boolean = call.argument("initBalanceObserver") ?: return
                 val isProduction: Boolean = call.argument("isProduction") ?: return
 
-                Kin.start(context, token, Environment.getProduction(), object : KinCallback<Void> {
+                val environment: KinEnvironment = if (isProduction) {
+                    Environment.getProduction()
+                } else {
+                    Environment.getPlayground()
+                }
+                Kin.start(context, token, environment, object : KinCallback<Void> {
                     override fun onFailure(error: KinEcosystemException?) {
                         isKinInit = false
                         sendError("kinStart", error)
@@ -84,6 +84,13 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
                     override fun onResponse(response: Void?) {
                         isKinInit = true
+                        if (initBalanceObserver) {
+                            try {
+                                Kin.addBalanceObserver(balanceObserver)
+                            } catch (e: Throwable) {
+                                sendError("Balance Observer doesn't initialized ", e)
+                            }
+                        }
                         sendReport("kinStart", "Kin started")
                     }
                 }, object : KinMigrationListener {
@@ -100,31 +107,6 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
                     override fun onStart() {
                         sendReport("kinMigration", "migrationStart")
-                    }
-                })
-
-                val environment: KinEnvironment = if (isProduction){
-                    Environment.getProduction()
-                }else{
-                    Environment.getPlayground()
-                }
-                Kin.start(context, token, environment, object : KinCallback<Void> {
-                    override fun onFailure(error: KinEcosystemException?) {
-                        isKinInit = false
-                        sendError("kinStart", error)
-                    }
-
-                    override fun onResponse(response: Void?) {
-                        isKinInit = true
-                        sendReport("kinStart", "Kin started")
-                        if (initBalanceObserver) {
-                            try {
-                                Kin.addBalanceObserver(balanceObserver)
-                            } catch (e: Throwable) {
-                                sendError( "Balance Observer doesn't initialized ", e)
-                            }
-                        }
-//                        migrationEmulation()
                     }
                 })
             }
@@ -154,7 +136,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         }
     }
 
-    private fun migrationEmulation(){
+    /*private fun migrationEmulation(){
         sendReport("kinMigration", "migrationStart")
         Handler().postDelayed(
                 {
@@ -175,10 +157,10 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                 },
                 30_000
         )
-    }
+    }*/
 
     private fun kinEarn(jwt: String) {
-        var prevBalance = balance
+        val prevBalance = balance
         try {
             Kin.requestPayment(jwt, object : KinCallback<OrderConfirmation> {
                 override fun onFailure(p0: KinEcosystemException?) {
@@ -244,18 +226,17 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
     }
 
     private fun sendReport(type: String, message: String, amount: Long? = null) {
-        val info : Info
-        if (amount != null)
-            info = Info(type, message, amount)
+        val info: Info = if (amount != null)
+            Info(type, message, amount)
         else
-            info = Info(type, message)
+            Info(type, message)
         var json: String? = null
         try {
             json = Gson().toJson(info)
         } catch (e: Throwable) {
             sendError("json", e)
         }
-        if (json != null) infoCallback?.success(json)
+        if (json != null) infoCallback.success(json)
     }
 
     private fun sendError(type: String, error: Throwable) {
@@ -278,7 +259,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         } catch (e: Throwable) {
             sendError("json", e)
         }
-        if (json != null) infoCallback?.error(code, message, json)
+        if (json != null) infoCallback.error(code, message, json)
     }
 
     private fun ifKinInit(): Boolean {

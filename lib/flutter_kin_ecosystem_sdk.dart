@@ -1,12 +1,40 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_kin_ecosystem_sdk/utils.dart';
 
 class FlutterKinEcosystemSdk {
-  static MethodChannel _methodChannel = MethodChannel('flutter_kin_ecosystem_sdk');
+  static MethodChannel _methodChannel =
+      MethodChannel('flutter_kin_ecosystem_sdk');
 
-  static const _stream = const EventChannel('flutter_kin_ecosystem_sdk_balance');
-  static const _streamInfo = const EventChannel('flutter_kin_ecosystem_sdk_info');
+  static const _streamBalance =
+      const EventChannel('flutter_kin_ecosystem_sdk_balance');
+  static const _streamInfo =
+      const EventChannel('flutter_kin_ecosystem_sdk_info');
+
+  static StreamController<Info> _streamInfoController =
+      new StreamController.broadcast();
+
+  static StreamController<int> _streamBalanceController =
+      new StreamController.broadcast();
+
+  static initStreams() {
+    _streamInfo.receiveBroadcastStream().listen((data) {
+      Info info = Info.fromJson(json.decode(data));
+      _streamInfoController.add(info);
+    }, onError: (error) {
+      Error err = new Error(
+          error.code, error.message, Info.fromJson(json.decode(error.details)));
+      throw err;
+    });
+
+    _streamBalance.receiveBroadcastStream().listen((data) {
+      _streamBalanceController.add(int.parse(data.toString()));
+    }, onError: (error) {
+      throw error;
+    });
+  }
 
   static Future<String> get getPublicAddress async {
     final String address =
@@ -14,16 +42,17 @@ class FlutterKinEcosystemSdk {
     return address;
   }
 
-  static EventChannel get balanceStream {
-    return _stream;
+  static StreamController<int> get balanceStream {
+    return _streamBalanceController;
   }
 
-  static EventChannel get infoStream {
-    return _streamInfo;
+  static StreamController<Info> get infoStream {
+    return _streamInfoController;
   }
 
-  static Future kinStart(
-      String token, String userId, String appId, bool initBalanceObserver, bool isProduction) async {
+  static Future kinStart(String token, String userId, String appId,
+      bool initBalanceObserver, bool isProduction) async {
+    initStreams();
     final Map<String, dynamic> params = <String, dynamic>{
       'token': token,
       'userId': userId,

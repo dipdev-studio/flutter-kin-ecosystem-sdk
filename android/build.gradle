@@ -1,8 +1,8 @@
-group 'studio.dipdev.flutter.kinecosystemsdk'
+group 'studio.dipdev.flutter.kin.ecosystem.sdk'
 version '1.0-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.3.20'
+    ext.kotlin_version = '1.3.30'
     repositories {
         google()
         jcenter()

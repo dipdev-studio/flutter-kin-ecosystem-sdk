@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="studio.dipdev.flutter_kin_ecosystem_sdk_example">
+    package="studio.dipdev.flutter.kin.ecosystem.sdk.example">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -8,7 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="flutter_kin_ecosystem_sdk_example"
+        android:label="flutter.kin.ecosystem.sdk.example"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
