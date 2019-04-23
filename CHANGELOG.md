@@ -15,3 +15,7 @@
  - add base plugin models Info and Error
  - returning base models in streams
  - fixes
+
+ ## 0.2.1
+
+ - Constants refactoring

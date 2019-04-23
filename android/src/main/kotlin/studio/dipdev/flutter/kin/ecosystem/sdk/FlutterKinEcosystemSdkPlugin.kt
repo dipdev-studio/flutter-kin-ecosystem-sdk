@@ -35,11 +35,11 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
         @JvmStatic
         fun registerWith(registrar: Registrar) {
-            val channel = MethodChannel(registrar.messenger(), "flutter_kin_ecosystem_sdk")
+            val channel = MethodChannel(registrar.messenger(), Constants.FLUTTER_KIN_ECOSYSTEM_SDK.value)
             val instance = FlutterKinEcosystemSdkPlugin(registrar.activity(), registrar.activity().applicationContext)
             channel.setMethodCallHandler(instance)
 
-            EventChannel(registrar.view(), "flutter_kin_ecosystem_sdk_balance").setStreamHandler(
+            EventChannel(registrar.view(), Constants.FLUTTER_KIN_ECOSYSTEM_SDK_BALANCE.value).setStreamHandler(
                     object : EventChannel.StreamHandler {
                         override fun onListen(args: Any?, events: EventChannel.EventSink) {
                             balanceCallback = events
@@ -50,7 +50,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                     }
             )
 
-            EventChannel(registrar.view(), "flutter_kin_ecosystem_sdk_info").setStreamHandler(
+            EventChannel(registrar.view(), Constants.FLUTTER_KIN_ECOSYSTEM_SDK_INFO.value).setStreamHandler(
                     object : EventChannel.StreamHandler {
                         override fun onListen(args: Any?, events: EventChannel.EventSink) {
                             infoCallback = events
@@ -66,7 +66,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when {
-            call.method == "kinStart" -> {
+            call.method == Constants.KIN_START.value -> {
                 val token: String = call.argument("token") ?: return
                 val initBalanceObserver: Boolean = call.argument("initBalanceObserver") ?: return
                 val isProduction: Boolean = call.argument("isProduction") ?: return
@@ -79,7 +79,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                 Kin.start(context, token, environment, object : KinCallback<Void> {
                     override fun onFailure(error: KinEcosystemException?) {
                         isKinInit = false
-                        sendError("kinStart", error)
+                        sendError(Constants.KIN_START.value, error)
                     }
 
                     override fun onResponse(response: Void?) {
@@ -91,11 +91,11 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                                 sendError("Balance Observer doesn't initialized ", e)
                             }
                         }
-                        sendReport("kinStart", "Kin started")
+                        sendReport(Constants.KIN_START.value, "Kin started")
                     }
                 }, object : KinMigrationListener {
                     override fun onFinish() {
-                        sendReport("kinMigration", "migrationFinish")
+                        sendReport(Constants.KIN_MIGRATION.value, "migrationFinish")
                     }
 
                     override fun onError(e: java.lang.Exception?) {
@@ -106,28 +106,28 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
                     }
 
                     override fun onStart() {
-                        sendReport("kinMigration", "migrationStart")
+                        sendReport(Constants.KIN_MIGRATION.value, "migrationStart")
                     }
                 })
             }
-            call.method == "launchKinMarket" -> if (ifKinInit()) Kin.launchMarketplace(activity)
-            call.method == "getPublicAddress" -> if (ifKinInit()) result.success(Kin.getPublicAddress())
-            call.method == "kinEarn" -> {
+            call.method == Constants.LAUNCH_KIN_MARKET.value -> if (ifKinInit()) Kin.launchMarketplace(activity)
+            call.method == Constants.GET_WALLET.value -> if (ifKinInit()) result.success(Kin.getPublicAddress())
+            call.method == Constants.KIN_EARN.value -> {
                 if (!ifKinInit()) return
                 val jwt: String? = call.argument("jwt")
                 if (jwt != null) kinEarn(jwt)
             }
-            call.method == "kinSpend" -> {
+            call.method == Constants.KIN_SPEND.value -> {
                 if (!ifKinInit()) return
                 val jwt: String? = call.argument("jwt")
                 if (jwt != null) kinSpend(jwt)
             }
-            call.method == "kinPayToUser" -> {
+            call.method == Constants.KIN_PAY_TO_USER.value -> {
                 if (!ifKinInit()) return
                 val jwt: String? = call.argument("jwt")
                 if (jwt != null) kinPayToUser(jwt)
             }
-            call.method == "orderConfirmation" -> {
+            call.method == Constants.ORDER_CONFIRMATION.value -> {
                 if (!ifKinInit()) return
                 val offerId: String? = call.argument("offerId")
                 if (offerId != null) orderConfirmation(offerId)
@@ -164,15 +164,15 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         try {
             Kin.requestPayment(jwt, object : KinCallback<OrderConfirmation> {
                 override fun onFailure(p0: KinEcosystemException?) {
-                    sendError("kinEarn", p0)
+                    sendError(Constants.KIN_EARN.value, p0)
                 }
 
                 override fun onResponse(p0: OrderConfirmation?) {
-                    sendReport("kinEarn", p0.toString(), balance - prevBalance)
+                    sendReport(Constants.KIN_EARN.value, p0.toString(), balance - prevBalance)
                 }
             })
         } catch (e: Throwable) {
-            sendError("kinEarn", e)
+            sendError(Constants.KIN_EARN.value, e)
         }
     }
 
@@ -180,15 +180,15 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         try {
             Kin.purchase(jwt, object : KinCallback<OrderConfirmation> {
                 override fun onFailure(p0: KinEcosystemException?) {
-                    sendError("kinSpend", p0)
+                    sendError(Constants.KIN_SPEND.value, p0)
                 }
 
                 override fun onResponse(p0: OrderConfirmation?) {
-                    sendReport("kinSpend", p0.toString())
+                    sendReport(Constants.KIN_SPEND.value, p0.toString())
                 }
             })
         } catch (e: Throwable) {
-            sendError("kinSpend", e)
+            sendError(Constants.KIN_SPEND.value, e)
         }
     }
 
@@ -196,15 +196,15 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         try {
             Kin.payToUser(jwt, object : KinCallback<OrderConfirmation> {
                 override fun onFailure(p0: KinEcosystemException?) {
-                    sendError("kinPayToUser", p0)
+                    sendError(Constants.KIN_PAY_TO_USER.value, p0)
                 }
 
                 override fun onResponse(p0: OrderConfirmation?) {
-                    sendReport("kinPayToUser", p0.toString())
+                    sendReport(Constants.KIN_PAY_TO_USER.value, p0.toString())
                 }
             })
         } catch (e: Throwable) {
-            sendError("kinPayToUser", e)
+            sendError(Constants.KIN_PAY_TO_USER.value, e)
         }
 
     }
@@ -213,15 +213,15 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
         try {
             Kin.getOrderConfirmation(offerId, object : KinCallback<OrderConfirmation> {
                 override fun onFailure(p0: KinEcosystemException?) {
-                    sendError("orderConfirmation", p0)
+                    sendError(Constants.ORDER_CONFIRMATION.value, p0)
                 }
 
                 override fun onResponse(p0: OrderConfirmation?) {
-                    sendReport("orderConfirmation", p0.toString())
+                    sendReport(Constants.ORDER_CONFIRMATION.value, p0.toString())
                 }
             })
         } catch (e: Exception) {
-            sendError("orderConfirmation", e)
+            sendError(Constants.ORDER_CONFIRMATION.value, e)
         }
     }
 
@@ -264,7 +264,7 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
     private fun ifKinInit(): Boolean {
         if (!isKinInit) {
-            val err = Error("kinStart", "Kin SDK not started")
+            val err = Error(Constants.KIN_START.value, "Kin SDK not started")
             sendError("-1", "Kin SDK not started", err)
         }
         return isKinInit
@@ -272,4 +272,20 @@ class FlutterKinEcosystemSdkPlugin(private var activity: Activity, private var c
 
     data class Info(val type: String, val message: String, val amount: Long? = null)
     data class Error(val type: String, val message: String)
+
+    enum class Constants(val value: String) {
+        FLUTTER_KIN_SDK("flutter_kin_sdk"),
+        FLUTTER_KIN_ECOSYSTEM_SDK("flutter_kin_ecosystem_sdk"),
+        FLUTTER_KIN_ECOSYSTEM_SDK_BALANCE("flutter_kin_ecosystem_sdk_balance"),
+        FLUTTER_KIN_ECOSYSTEM_SDK_INFO("flutter_kin_ecosystem_sdk_info"),
+        KIN_START("KinStart"),
+        LAUNCH_KIN_MARKET("LaunchKinMarket"),
+        GET_WALLET("GetWallet"),
+        KIN_EARN("KinEarn"),
+        KIN_SPEND("KinSpend"),
+        KIN_PAY_TO_USER("KinPayToUser"),
+        KIN_MIGRATION("KinMigration"),
+        ORDER_CONFIRMATION("OrderConfirmation"),
+        BALANCE_OBSERVER("BalanceObserver")
+    }
 }
